@@ -55,7 +55,7 @@ class Kiwoom_api(QAxWidget):
         self.OnReceiveTrData.connect(self.TR_data_slot) # 트랜젝션 요청관련 이벤트
 
     def login_slots(self, err_code):
-        print(f'login_slots err_code = ${errors(err_code)}')
+        print(f'login_slots err_code = {errors(err_code)}')
         #로그인이 완료되면 이벤트 루프를 종료한다.
         self.login_event_loop.exit()
 
@@ -79,9 +79,9 @@ class Kiwoom_api(QAxWidget):
             self.stop_screen_cancel(self.screen_my_info)
             self.OnReceiveTrData_event_loop.exit()
 
-            print(f'예수금 ${deposit}')
-            print(f'실제 투자에 사용할 금액 ${use_money}')
-            print(f'출금가능금액 ${output_deposit}')
+            print(f'예수금 {deposit}')
+            print(f'실제 투자에 사용할 금액 {use_money}')
+            print(f'출금가능금액 {output_deposit}')
         elif sRQName == '계좌평가잔고내역요청':
             print(f'계좌평가잔고내역요청')
             ###### 싱글데이터 ######
@@ -93,17 +93,18 @@ class Kiwoom_api(QAxWidget):
             self.total_profit_loss_rate = total_profit_loss_rate
             self.stop_screen_cancel(self.screen_my_info)
 
-            print(f'총매입금액 ${total_buy_money}')
-            print(f'총평가손익금액 ${total_profit_loss_money}')
-            print(f'총수익률 ${total_profit_loss_rate}')
+            print(f'총매입금액 {total_buy_money}')
+            print(f'총평가손익금액 {total_profit_loss_money}')
+            print(f'총수익률 {total_profit_loss_rate}')
 
             ###### 멀티데이터 ######
             multiData = self.dynamicCall('GetRepeatCnt(QString, QString)', sTrCode, sRQName)
             if multiData > 0:
-                print('멀티데이터 계좌평가잔고내역 데이터 O')
+                print(f'멀티데이터 계좌평가잔고내역 데이터 = {multiData}')
                 for i in range(multiData):
                     stock_no = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '종목번호')
-                    stock_no = stock_no.strip[1:]
+                    stock_no = stock_no.strip()[1:]
+                    print(f'stock_no.strip()[1:] = {stock_no.strip()[1:]}')
                     stock_nm = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '종목명')
                     stock_quantity = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '보유수량')
                     stock_buy_price = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '매입가')
@@ -111,26 +112,26 @@ class Kiwoom_api(QAxWidget):
                     stock_current_price = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '현재가')
                     stock_purchase_total_price = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '매입금액')
                     stock_possible_sell_quantity = self.dynamicCall("GetCommData(QString, QString, int, QString)", sTrCode, sRQName, i, '매매가능수량')
-
                     if not stock_no in self.account_evaluation_info:
-                        self.account_evaluation_info[stock_no]
+                        print(f' not stock_no in self.account_evaluation_info = {not stock_no in self.account_evaluation_info}')
+                        self.account_evaluation_info[stock_no] = {}
 
-                    self.account_evaluation_info[stock_no].update('종목명', stock_nm.strip())
-                    self.account_evaluation_info[stock_no].update('보유수량', int(stock_quantity.strip()))
-                    self.account_evaluation_info[stock_no].update('매입가', int(stock_buy_price.strip()))
-                    self.account_evaluation_info[stock_no].update('수익률(%)', int(stock_rate_return.strip()))
-                    self.account_evaluation_info[stock_no].update('현재가', int(stock_current_price.strip()))
-                    self.account_evaluation_info[stock_no].update('매입금액', int(stock_purchase_total_price.strip()))
-                    self.account_evaluation_info[stock_no].update('매매가능수량', int(stock_possible_sell_quantity.strip()))
+                    self.account_evaluation_info[stock_no].update({'종목명' : stock_nm.strip()})
+                    self.account_evaluation_info[stock_no].update({'보유수량' : int(stock_quantity.strip())})
+                    self.account_evaluation_info[stock_no].update({'매입가' : int(stock_buy_price.strip())})
+                    self.account_evaluation_info[stock_no].update({'수익률(%)' : float(stock_rate_return.strip())})
+                    self.account_evaluation_info[stock_no].update({'현재가' : int(stock_current_price.strip())})
+                    self.account_evaluation_info[stock_no].update({'매입금액' : int(stock_purchase_total_price.strip())})
+                    self.account_evaluation_info[stock_no].update({'매매가능수량' : int(stock_possible_sell_quantity.strip())})
 
-                    print(f'종목번호 ${stock_no}')
-                    print(f'종목명 ${stock_nm}')
-                    print(f'보유수량 ${stock_quantity}')
-                    print(f'매입가 ${stock_buy_price}')
-                    print(f'수익률(%) ${stock_rate_return}')
-                    print(f'현재가 ${stock_current_price}')
-                    print(f'매입금액 ${stock_purchase_total_price}')
-                    print(f'매매가능수량 ${stock_possible_sell_quantity}')
+                    print(f'종목번호 {stock_no}')
+                    print(f'종목명 {stock_nm}')
+                    print(f'보유수량 {stock_quantity}')
+                    print(f'매입가 {stock_buy_price}')
+                    print(f'수익률(%) {stock_rate_return}')
+                    print(f'현재가 {stock_current_price}')
+                    print(f'매입금액 {stock_purchase_total_price}')
+                    print(f'매매가능수량 {stock_possible_sell_quantity}')
             else:
                 print('멀티데이터 계좌평가잔고내역 데이터 없음')
 
@@ -140,7 +141,7 @@ class Kiwoom_api(QAxWidget):
                 self.OnReceiveTrData_event_loop.exit()
 
     def stop_screen_cancel(self, sScrNo=None):
-        print(f'stop_screen_cancel (sScrNo : ${sScrNo})')
+        print(f'stop_screen_cancel (sScrNo : {sScrNo})')
         self.dynamicCall('DisconnectRealData(QString)', sScrNo)
 
     def get_account_info(self):
@@ -162,9 +163,9 @@ class Kiwoom_api(QAxWidget):
         else:
             account_pw = '0000'
 
-        print(f'계좌번호 : ${account_no}')
-        print(f'접속서버 구분 (1 : 모의투자, 나머지 : 실서버) ${sever_gubun}')
-        print(f'계좌 비밀번호 ${account_pw}')
+        print(f'계좌번호 : {account_no}')
+        print(f'접속서버 구분 (1 : 모의투자, 나머지 : 실서버) {sever_gubun}')
+        print(f'계좌 비밀번호 {account_pw}')
 
         self.account_no = account_no
         self.sever_gubun = sever_gubun
